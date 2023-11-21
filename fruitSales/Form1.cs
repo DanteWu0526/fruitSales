@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Diagnostics;
 
 namespace fruitSales
 {
@@ -76,6 +77,10 @@ namespace fruitSales
         }
         #endregion
 
+        string fruitName;
+        double price;
+        int quantity;
+        double salesAmount;
         public Form1()
         {
             InitializeComponent();
@@ -96,19 +101,49 @@ namespace fruitSales
 
         #region 銷售各項功能區域
         /// <summary>
-        /// 新增銷售
+        /// 新增銷售邏輯
         /// </summary>
         private void AddSaleRecord()
         {
             int itemNo = records.Count + 1;
-            string fruitName = fruitTextBox.Text;
-            double price = double.Parse(priceTextBox.Text);
-            int quantity = int.Parse(quantityTextBox.Text);
-            double salesAmount = price * quantity;
+            fruitName = fruitTextBox.Text;
+            if (string.IsNullOrWhiteSpace(fruitName) || string.IsNullOrEmpty(fruitName))
+            {
+                MessageBox.Show("無效水果名稱");
+                return;
+            }
+
+            try
+            {
+                price = double.Parse(priceTextBox.Text);
+            }
+            catch
+            {
+                if (price == 0)
+                {
+                    MessageBox.Show("單價輸入錯誤");
+                    return;
+                }
+            }
+
+            try
+            {
+                quantity = int.Parse(quantityTextBox.Text);
+                salesAmount = price * quantity;
+            }
+            catch
+            {
+                if(quantity == 0)
+                {
+                    MessageBox.Show("銷售數量輸入錯誤");
+                    return;
+                }
+            }
             DateTime salesDate = DateTime.Now;
-            records.Add(new SaleRecord(itemNo,fruitName,price,quantity,salesAmount,salesDate));
+            records.Add(new SaleRecord(itemNo, fruitName, price, quantity, salesAmount, salesDate));
             SaveSaleRecords();
             DisplaySaleRecords();
+
         }
 
         /// <summary>
@@ -124,6 +159,7 @@ namespace fruitSales
                     {
                         sw.WriteLine($"{record.ItemNo}, {record.FruitName}, {record.Price}, {record.Quantity}, {record.SalesAmount}, {record.SaleDate}");
                     }
+                    InitializeText();
                 }
             }
             catch 
